@@ -13,7 +13,7 @@ Additionally, this project configures a `systemd` service to automatically chang
 
 ## Prerequisites
 
--   **Linux-based system** (works best with Ubuntu or similar distributions).
+-   **GNOME-based system**
 -   **Python 3** installed.
 -   **sudo/root permissions** to install and enable the systemd service.
 
