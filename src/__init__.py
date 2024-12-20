@@ -24,25 +24,21 @@ def download_libravatar(email):
     url = f"https://{host}{path}"
     print(f"Downloading from URL: {url}")
 
-    try:
-        conn = http.client.HTTPSConnection(host)
-        conn.request("GET", path)
+    conn = http.client.HTTPSConnection(host)
+    conn.request("GET", path)
 
-        response = conn.getresponse()
+    response = conn.getresponse()
 
-        if response.status == 200:
-            avatar_data = response.read()
-            avatar_file = io.BytesIO(avatar_data)
-            print("Avatar downloaded successfully.")
-            return avatar_file
-        else:
-            print(f"Failed to download avatar. HTTP Status: {response.status}")
-            return None
-
-        conn.close()
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    if response.status == 200:
+        avatar_data = response.read()
+        avatar_file = io.BytesIO(avatar_data)
+        print("Avatar downloaded successfully.")
+        return avatar_file
+    else:
+        print(f"Failed to download avatar. HTTP Status: {response.status}")
         return None
+
+    conn.close()
 
 
 def change_gnome_profile_icon(username, avatar_file):

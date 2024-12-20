@@ -51,13 +51,20 @@ def create_systemd_service():
     service_content = f"""
 [Unit]
 Description=Change GNOME Profile Icon
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart=/usr/bin/python3 {script_dest_path} {get_logged_in_username()} {email}
 Type=oneshot
 RemainAfterExit=true
 Environment=DISPLAY=:0
+User=root
+Restart=on-failure
+RestartSec=30s
+ExecStartPre=/bin/rm -f /var/run/change_gnome_icon.done
+ExecCondition=/bin/bash -c '! [ -e /var/run/change_gnome_icon.done ]'
+ExecStartPost=/bin/touch /var/run/change_gnome_icon.done
 
 [Install]
 WantedBy=multi-user.target
