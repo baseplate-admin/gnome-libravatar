@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import shutil
 import hashlib
@@ -69,13 +70,18 @@ Icon=/var/lib/AccountsService/icons/baseplate-admin
         os.chown(icon_destination, 0, 0)
 
         # Update the AccountsService user file to point to the new icon
-        with open(user_path, "r+b") as user_file:
+        with open(user_path, "rb") as user_file:
             content = user_file.read().decode()
-            content_updated = re.sub(
-                r"^Icon=.*", f"Icon={icon_destination}", content, flags=re.M
-            )
-            user_file.seek(0)
+            if "Icon" in content:
+                content_updated = re.sub(
+                    r"^Icon=.*", f"Icon={icon_destination}", content, flags=re.M
+                )
+            else:
+                content_updated = content.rstrip("\n") + f"\nIcon={icon_destination}"
+
+        with open(user_path, "wb") as user_file:
             user_file.write(content_updated.encode())
+            print(content_updated)
 
         print(f"Profile icon updated successfully for {username}.")
     except PermissionError:
