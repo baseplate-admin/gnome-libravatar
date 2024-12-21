@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 import shutil
 import subprocess
@@ -7,9 +9,8 @@ import getpass
 
 if os.geteuid() != 0:
     print("This script must be run with root privileges. Please run with 'sudo'.")
-    sys.exit(1)  # Exit the script if not run as root
+    sys.exit(1)
 
-# Define the paths and filenames
 script_name = "./src/__init__.py"
 script_source_path = os.path.join(os.getcwd(), script_name)
 script_dest_path = "/usr/local/bin/gnome-libravatar.py"

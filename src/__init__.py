@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import os
 import shutil
 import hashlib
@@ -8,7 +9,7 @@ import io
 import argparse
 
 
-def download_libravatar(email):
+def download_libravatar(email: str) -> io.BytesIO:
     """
     Download an avatar from Libravatar using an email address and return it as a BytesIO object.
 
@@ -36,12 +37,12 @@ def download_libravatar(email):
         return avatar_file
     else:
         print(f"Failed to download avatar. HTTP Status: {response.status}")
-        return None
+        raise
 
     conn.close()
 
 
-def change_gnome_profile_icon(username, avatar_file):
+def change_gnome_profile_icon(username: str, avatar_file: io.BytesIO):
     """
     Change the GNOME profile icon for the given user using an in-memory avatar file.
 
@@ -58,37 +59,34 @@ Icon=/var/lib/AccountsService/icons/baseplate-admin
             f.write(string.encode())
 
     icon_destination = f"/var/lib/AccountsService/icons/{username}"
-    try:
-        with open(icon_destination, "wb") as icon_file:
-            avatar_file.seek(0)  # Rewind the file to the beginning
-            shutil.copyfileobj(avatar_file, icon_file)
+    with open(icon_destination, "wb") as icon_file:
+        avatar_file.seek(0)  # Rewind the file to the beginning
+        shutil.copyfileobj(avatar_file, icon_file)
 
-        os.chown(icon_destination, 0, 0)
+    os.chown(icon_destination, 0, 0)
 
-        # Update the AccountsService user file to point to the new icon
-        with open(user_path, "rb") as user_file:
-            content = user_file.read().decode()
-            if "Icon" in content:
-                content_updated = re.sub(
-                    r"^Icon=.*", f"Icon={icon_destination}", content, flags=re.M
-                )
-            else:
-                content_updated = content.rstrip("\n") + f"\nIcon={icon_destination}"
+    # Update the AccountsService user file to point to the new icon
+    with open(user_path, "rb") as user_file:
+        content = user_file.read().decode()
+        if "Icon" in content:
+            content_updated = re.sub(
+                r"^Icon=.*", f"Icon={icon_destination}", content, flags=re.M
+            )
+        else:
+            content_updated = content.rstrip("\n") + f"\nIcon={icon_destination}"
 
-        with open(user_path, "wb") as user_file:
-            user_file.write(content_updated.encode())
-            print(content_updated)
+    with open(user_path, "wb") as user_file:
+        user_file.write(content_updated.encode())
+        print(content_updated)
 
-        print(f"Profile icon updated successfully for {username}.")
-    except PermissionError:
-        print(
-            "Permission denied. Please run this script with elevated privileges (sudo)."
-        )
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    print(f"Profile icon updated successfully for {username}.")
 
 
 if __name__ == "__main__":
+    if os.geteuid() != 0:
+        print("This script must be run with root privileges. Please run with 'sudo'.")
+        exit(1)
+
     parser = argparse.ArgumentParser(
         description="Download and set a GNOME profile icon from an email address."
     )

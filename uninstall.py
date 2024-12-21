@@ -1,15 +1,16 @@
+#!/usr/bin/python3
+
 import os
 import subprocess
 import sys
 import re
 import getpass
 
-# Define the paths and filenames
 script_dest_path = "/usr/local/bin/gnome-libravatar.py"
 service_file_path = "/etc/systemd/system/gnome-libravatar.service"
 if os.geteuid() != 0:
     print("This script must be run with root privileges. Please run with 'sudo'.")
-    sys.exit(1)  # Exit the script if not run as root
+    sys.exit(1)
 
 
 def get_logged_in_username():
@@ -62,10 +63,10 @@ def remove_systemd_service():
             print(f"The systemd service file does not exist at {service_file_path}.")
     except subprocess.CalledProcessError as e:
         print(f"Error stopping or disabling systemd service: {e}")
-        raise
+        raise e
     except Exception as e:
         print(f"Error removing systemd service: {e}")
-        raise
+        raise e
 
 
 def remove_profile_icon():
