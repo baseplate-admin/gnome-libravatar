@@ -57,6 +57,7 @@ def change_gnome_profile_icon(username: str, avatar_file: io.BytesIO):
 Icon=/var/lib/AccountsService/icons/{username}
 """
             f.write(string.encode())
+            return
 
     icon_destination = f"/var/lib/AccountsService/icons/{username}"
     with open(icon_destination, "wb") as icon_file:
