@@ -53,8 +53,8 @@ def change_gnome_profile_icon(username: str, avatar_file: io.BytesIO):
 
     if not os.path.exists(user_path):
         with open(user_path, "wb") as f:
-            string = """[User]
-Icon=/var/lib/AccountsService/icons/baseplate-admin
+            string = f"""[User]
+Icon=/var/lib/AccountsService/icons/{username}
 """
             f.write(string.encode())
 
