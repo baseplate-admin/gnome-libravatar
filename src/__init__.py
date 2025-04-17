@@ -9,6 +9,8 @@ import io
 import argparse
 from urllib.parse import urljoin
 from http.client import HTTPSConnection
+from os import listdir
+from os.path import isfile, join
 
 
 
@@ -17,7 +19,7 @@ def get(host, path):
     Simple function to follow http redirects which are returned by libavatar if the user has a gravitar icon
 
     :param host: domain to make request to
-    :param url: path to make request to
+    :param path: path to make request to
     :return: http client response
 
     """
@@ -32,7 +34,7 @@ def get(host, path):
     if location_header is None:
         return response
     else:
-        location = urljoin(url, location_header)
+        location = urljoin(path, location_header)
         return get(host, location)
 
 def download_libravatar(email: str) -> io.BytesIO:
@@ -105,7 +107,6 @@ Icon=/var/lib/AccountsService/icons/{username}
 
     print(f"Profile icon updated successfully for {username}.")
 
-
 if __name__ == "__main__":
     if os.geteuid() != 0:
         print("This script must be run with root privileges. Please run with 'sudo'.")
@@ -114,13 +115,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Download and set a GNOME profile icon from an email address."
     )
-    parser.add_argument("username", help="Username of the current logged in user")
-    parser.add_argument("email", help="The email address to fetch the avatar for.")
-    args = parser.parse_args()
 
-    print(f"Logged-in GNOME user: {args.username}")
+    path = '/var/lib/AccountsService/users';
+    users = [f for f in listdir(path) if isfile(join(path, f))]
+    for user in users:
+        with open(join(path, user)) as user_file:
+            for line in user_file:
+                if line.startswith("Email="):
+                    email = line.split('=')[1]
+                    print(f"Checking {user}:{email}")
+                    avatar_file = download_libravatar(email)
+                    if avatar_file:
+                        change_gnome_profile_icon(user, avatar_file)
 
-    avatar_file = download_libravatar(args.email)
 
-    if avatar_file:
-        change_gnome_profile_icon(args.username, avatar_file)
