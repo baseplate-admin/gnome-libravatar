@@ -7,7 +7,33 @@ import http.client
 import re
 import io
 import argparse
+from urllib.parse import urljoin
+from http.client import HTTPSConnection
 
+
+
+def get(host, path):
+    """
+    Simple function to follow http redirects which are returned by libavatar if the user has a gravitar icon
+
+    :param host: domain to make request to
+    :param url: path to make request to
+    :return: http client response
+
+    """
+    print(f'GET {path}')
+
+    connection = HTTPSConnection(host)
+    connection.request('GET', path)
+
+    response = connection.getresponse()
+    location_header = response.getheader('location')
+
+    if location_header is None:
+        return response
+    else:
+        location = urljoin(url, location_header)
+        return get(host, location)
 
 def download_libravatar(email: str) -> io.BytesIO:
     """
@@ -25,10 +51,7 @@ def download_libravatar(email: str) -> io.BytesIO:
     url = f"https://{host}{path}"
     print(f"Downloading from URL: {url}")
 
-    conn = http.client.HTTPSConnection(host)
-    conn.request("GET", path)
-
-    response = conn.getresponse()
+    response = get(host, path)
 
     if response.status == 200:
         avatar_data = response.read()
