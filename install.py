@@ -15,10 +15,6 @@ script_name = "./src/__init__.py"
 script_source_path = os.path.join(os.getcwd(), script_name)
 script_dest_path = "/usr/local/bin/gnome-libravatar.py"
 service_file_path = "/etc/systemd/system/gnome-libravatar.service"
-while True:
-    email = input("What is your Email: ")
-    if email:
-        break
 
 
 def get_logged_in_username():
@@ -56,7 +52,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 {script_dest_path} {get_logged_in_username()} {email}
+ExecStart=/usr/bin/python3 {script_dest_path}
 Type=oneshot
 RemainAfterExit=true
 Environment=DISPLAY=:0
