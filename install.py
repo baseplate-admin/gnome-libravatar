@@ -56,7 +56,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 {script_dest_path} {get_logged_in_username()} {email}
+ExecStart=/usr/bin/python3 {script_dest_path}
 Type=oneshot
 RemainAfterExit=true
 Environment=DISPLAY=:0
